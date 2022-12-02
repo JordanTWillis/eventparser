@@ -1,0 +1,50 @@
+import requests
+from bs4 import BeautifulSoup
+import datetime
+
+# results = requests.get('https://www.peakradar.com/event/?keyword&do_search=no&event_location&start_date=11-13-2022&end_date=11-19-2022&date_format=m-d-Y&view&min_lat&min_lng&max_lat&max_lng&country_location&city_location&state_location&zip_location')
+results = requests.get('https://www.peakradar.com/event/?page=1&keyword&do_search=no&event_location&start_date=11-13-2022&end_date=11-19-2022&date_format=m-d-Y&view&min_lat&min_lng&max_lat&max_lng&country_location&city_location&state_location&zip_location')
+soup = BeautifulSoup(results.text, 'html.parser')
+
+class Parser:
+    
+    def __init__(self,soup):
+        self.soup = soup
+
+# Gathering URL's from the website
+    def get_urls(self):
+        link_list = [href['data-url'] for href in self.soup.select('.lazy-load-image-wrapper')]
+        return link_list
+    
+# Gathering titles for the events
+    def get_titles(self):
+        title_list = [item.find('a').text.strip() for item in self.soup.select('.search-info')]
+        return title_list
+
+# Gathering dates for each event 
+    def get_dates(self):
+        date_list = [date.text for date in soup.select('.sch-date')]
+        return date_list
+
+# Printing the final list of events, links, and dates
+    def print_final(self, linkList, titleList,datesList):
+        new_urls = linkList
+        new_titles = titleList
+        new_dates = datesList
+        content_list = [("\nName of the event is: {}. \nThe URL to the event is: {}. \nThe date of the event is {}.\n\n").format(new_titles[i], new_urls[i], new_dates[i]) + "=" * 180 for i in range(len(new_titles))]
+
+        edited_content = "\r\n".join(content_list)
+        return edited_content
+
+def main():
+
+    parser = Parser(soup)
+  
+    linkList = parser.get_urls()
+    titleList = parser.get_titles()
+    datesList = parser.get_dates()
+    print(parser.print_final(linkList,titleList,datesList))  
+
+if __name__ == "__main__":
+
+    main()
